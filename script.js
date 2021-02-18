@@ -19,30 +19,56 @@ BETTING
 
 const icons = ["🌊", "🦑", "🦭", "🧜🏽‍♀️", "🐚", "🐬", "🐡", "🐠", "🦈", "🦀"];
 
-function randomIcon() {
-  return Math.floor(Math.random() * icons.length);
-}
 const reel1 = document.getElementById("reel1");
 const reel2 = document.getElementById("reel2");
 const reel3 = document.getElementById("reel3");
-const earnings = document.querySelector(".currentEarnings");
-document.querySelector(".spinBtn").addEventListener("click", spinReels);
-const betBtn = document
-  .querySelector(".startBet")
-  .addEventListener("click, calcBet");
 
-function calcBet() {
-  const add10 = document.querySelector(".betUp");
-  const minus10 = document.querySelector(".betDown");
-  const yolo = document.querySelector(".maxBet");
-  let betAmt = 100;
-  earnings.insertAdjacentHTML("beforeend", `Current bet: ${betAmt}`);
-  add10.addEventListener("click", () => {
-    betAmt += 10;
-    earnings.insertAdjacentHTML("beforeend", `Current bet: ${betAmt}`);
-  });
-  minus10.addEventListener("click", () => (betAmt -= 10));
+let betAmt = 100;
+let currentEarnings = 1000;
+const earnings = document.querySelector(".currentEarnings");
+const totalBet = document.querySelector(".totalBet");
+const add10 = document.querySelector(".betUp");
+const minus10 = document.querySelector(".betDown");
+const yolo = document.querySelector(".maxBet");
+const betBtn = document.querySelector(".startBet");
+totalBet.innerHTML = `Current Bet: $0`;
+
+add10.addEventListener("click", () => {
+  betAmt += 10;
+  currentEarnings -= 10;
+  if (betAmt > currentEarnings) {
+    alert("Slow down there, big spender! You don't have anymore to bet!");
+  } else {
+    earnings.innerHTML = `Current Earnings: $${currentEarnings}`;
+    totalBet.innerHTML = `Current Bet: $${betAmt}`;
+  }
+});
+minus10.addEventListener("click", () => {
+  betAmt -= 10;
+  currentEarnings += 10;
+  earnings.innerHTML = `Current Earnings: $${currentEarnings}`;
+  if (betAmt <= 0) {
+    alert("You're out of sand dollars! Better luck next time!");
+  } else {
+    totalBet.innerHTML = `Current Bet: $${betAmt}`;
+  }
+});
+betBtn.addEventListener("click", () => {
+  betAmt = 100;
+  earnings.innerHTML = `Current Earnings: $${currentEarnings - 100}`;
+  totalBet.innerHTML = `Current Bet: $${betAmt}`;
+});
+yolo.addEventListener("click", () => {
+  betAmt = currentEarnings;
+  earnings.innerHTML = `Current Earnings: $0`;
+  totalBet.innerHTML = `Current Bet: $${currentEarnings}`;
+});
+
+function randomIcon() {
+  return Math.floor(Math.random() * icons.length);
 }
+
+document.querySelector(".spinBtn").addEventListener("click", spinReels);
 
 function spinReels() {
   reel1.innerHTML = icons[randomIcon()];

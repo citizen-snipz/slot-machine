@@ -17,13 +17,13 @@ BETTING
 8. After all money lost, populate "Play again button" to reset the game
 */
 
-const icons = ["🌊", "🦑", "🦭", "🧜🏽‍♀️", "🐚", "🐬", "🐡", "🐠", "🦈", "🦀"];
+const icons = ["🧜🏽‍♀️", "🦑", "🦭", "🐚", "🐬", "🐡", "🦈", "🦀"];
 
 const reel1 = document.getElementById("reel1");
 const reel2 = document.getElementById("reel2");
 const reel3 = document.getElementById("reel3");
 
-let betAmt = 100;
+let betAmt = 0;
 let currentEarnings = 1000;
 const earnings = document.querySelector(".currentEarnings");
 const totalBet = document.querySelector(".totalBet");
@@ -31,47 +31,114 @@ const add10 = document.querySelector(".betUp");
 const minus10 = document.querySelector(".betDown");
 const yolo = document.querySelector(".maxBet");
 const betBtn = document.querySelector(".startBet");
-totalBet.innerHTML = `Current Bet: $0`;
+const payMsg = document.querySelector(".payoutMessage");
+const reels = document.querySelector(".reels");
 
 add10.addEventListener("click", () => {
-  betAmt += 10;
-  currentEarnings -= 10;
-  if (betAmt > currentEarnings) {
-    alert("Slow down there, big spender! You don't have anymore to bet!");
+  if (currentEarnings - betAmt - 10 < 0) {
+    alert("Slow down there, big spender! You ran out of sand dollars!");
   } else {
-    earnings.innerHTML = `Current Earnings: $${currentEarnings}`;
-    totalBet.innerHTML = `Current Bet: $${betAmt}`;
+    setBet(10);
   }
 });
 minus10.addEventListener("click", () => {
-  betAmt -= 10;
-  currentEarnings += 10;
-  earnings.innerHTML = `Current Earnings: $${currentEarnings}`;
   if (betAmt <= 0) {
-    alert("You're out of sand dollars! Better luck next time!");
+    alert("You can't bet less than zero!");
   } else {
-    totalBet.innerHTML = `Current Bet: $${betAmt}`;
+    setBet(-10);
   }
 });
 betBtn.addEventListener("click", () => {
-  betAmt = 100;
-  earnings.innerHTML = `Current Earnings: $${currentEarnings - 100}`;
-  totalBet.innerHTML = `Current Bet: $${betAmt}`;
+  if (currentEarnings - betAmt - 100 < 0) {
+    alert(
+      "Come back when ya got more sand dollars, old chum! (refresh to play again)"
+    );
+  } else {
+    setBet(100);
+  }
 });
 yolo.addEventListener("click", () => {
-  betAmt = currentEarnings;
-  earnings.innerHTML = `Current Earnings: $0`;
-  totalBet.innerHTML = `Current Bet: $${currentEarnings}`;
+  if (currentEarnings === 0) {
+    alert(
+      "Come back when ya got more sand dollars, old chum! (refresh to play again)"
+    );
+  }
+  setBet(currentEarnings - betAmt);
 });
 
 function randomIcon() {
   return Math.floor(Math.random() * icons.length);
 }
 
-document.querySelector(".spinBtn").addEventListener("click", spinReels);
+document.querySelector(".spinBtn").addEventListener("click", runGame);
+
+function runGame() {
+  const spins = spinReels();
+  const winnings = calcWinnings(spins);
+  console.log(winnings);
+  setEarnings(betAmt + winnings);
+  setBet(-betAmt);
+}
 
 function spinReels() {
-  reel1.innerHTML = icons[randomIcon()];
-  reel2.innerHTML = icons[randomIcon()];
-  reel3.innerHTML = icons[randomIcon()];
+  if (betAmt === 0) {
+    alert("Place your bets before spinning!");
+  } else {
+    reel1.innerHTML = "";
+    reel2.innerHTML = "";
+    reel3.innerHTML = "";
+    const spins = [
+      icons[randomIcon()],
+      icons[randomIcon()],
+      icons[randomIcon()]
+    ];
+    setTimeout(function () {
+      reel1.innerHTML = spins[0];
+    }, 500);
+    setTimeout(function () {
+      reel2.innerHTML = spins[1];
+    }, 800);
+    setTimeout(function () {
+      reel3.innerHTML = spins[2];
+    }, 1100);
+    return spins;
+  }
+}
+
+function calcWinnings(spins) {
+  /* no match = lose bet, 2 match = return bet + 10, 3 match = double bet, 3 mermaids bonus = 5x bet*/
+
+  if (spins[0] === icons[0] && spins[1] === icons[0] && spins[2] === icons[0]) {
+    payMsg.innerHTML = `<span class="payoutMessage">Congratulations, you got the 5X mermaid bonus! $${
+      betAmt * 5
+    } awarded!</span>`;
+    return betAmt * 4;
+  } else if (spins[0] === spins[1] && spins[0] === spins[2]) {
+    payMsg.innerHTML = `<span class="payoutMessage">Congrats, you won a 2X bonus! $${
+      betAmt * 2
+    } awarded!</span>`;
+    return betAmt;
+  } else if (
+    spins[0] === spins[1] ||
+    spins[0] === spins[2] ||
+    spins[2] === spins[1]
+  ) {
+    payMsg.innerHTML = `<span class="payoutMessage">Not bad, you got the 1.2X bonus! $${Math.round(
+      betAmt * 1.2
+    )} awarded!</span>`;
+    return Math.round(betAmt * 0.2);
+  } else {
+    payMsg.innerHTML = `<span class="payoutMessage">Better luck next time!</span>`;
+    return -betAmt * 2;
+  }
+}
+
+function setEarnings(value) {
+  currentEarnings += value;
+  earnings.innerHTML = `Current Earnings: $${currentEarnings}`;
+}
+
+function setBet(value) {
+  betAmt += value;
+  totalBet.innerHTML = `Current Bet: $${betAmt}`;
 }

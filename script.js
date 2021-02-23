@@ -17,7 +17,7 @@ BETTING
 8. After all money lost, populate "Play again button" to reset the game
 */
 
-const icons = ["🧜🏽‍♀️", "🦑", "🦭", "🐚", "🐬", "🐡", "🦈", "🦀"];
+const icons = ["🧜🏽‍♀️", "🦑", "🌊", "🐚", "🐬", "🐡", "🦈", "🦀"];
 
 const reel1 = document.getElementById("reel1");
 const reel2 = document.getElementById("reel2");
